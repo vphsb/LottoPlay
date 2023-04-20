@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>
+        Lotto Spiel
+    </h1>
+    <p>
+        Bitte geben Sie Ihre Tipp Zahlen ein:
+    </p>
+    <br>
+    <input type="number" id="input1" name="input1" min="1" max="49" step="1" oninput="handleInput(this.id)">
+    <input type="number" id="input2" name="input2" min="1" max="49" step="1" oninput="handleInput(this.id)">
+    <input type="number" id="input3" name="input3" min="1" max="49" step="1" oninput="handleInput(this.id)">
+    <input type="number" id="input4" name="input4" min="1" max="49" step="1" oninput="handleInput(this.id)">
+    <input type="number" id="input5" name="input5" min="1" max="49" step="1" oninput="handleInput(this.id)">
+    <input type="number" id="input6" name="input6" min="1" max="49" step="1" oninput="handleInput(this.id)">
+    <br>
+
+
+    <input style="display: none;" type="button" id="play" value="Play!" onclick="play()" >
+    <div id="table_container"></div>
+    <br>
+    <p id="ausgabe"></p>
+
+    <script>
+        let playingnums=[];
+
+        function handleInput(inputId) {
+            let all_ok = true;
+            playingnums=[];
+            for(let i=1; i<=6; i++)
+            {
+                var inputValue = parseInt(document.getElementById("input"+i).value);
+                if(1<=inputValue && inputValue<=49){
+                    if(playingnums.includes(inputValue))
+                    {
+                        console.error("Numer:"+i+"is repeating ok:"+inputValue);
+                        all_ok = false; 
+                    }
+                    else
+                    {
+                        console.log("Numer:"+i+"is ok:"+inputValue);
+                        playingnums.push(inputValue);
+                    }
+
+                }
+                else
+                {
+                    console.error("Numer:"+i+"is not ok:"+inputValue);
+                    all_ok = false;
+                }
+            }
+            if(all_ok)
+            {
+                console.warn("READY TO PLAY");
+                let playbtn = document.getElementById("play");
+                playbtn.style.display = "block";
+            }
+            else
+            {
+                console.warn("NOT READY");
+                let playbtn = document.getElementById("play");
+                playbtn.style.display = "none";
+            }
+            
+        }
+
+        function play(){
+            console.log("PLAYING!");
+            const table = document.createElement("table");
+            // Create a set to keep track of which numbers have already been used in each row
+            let used_nums = [];
+            // Generate 6 random numbers between 1 and 49
+            for (let j = 0; j < 6; j++) {
+                // Keep generating random numbers until we get one that hasn't already been used in this row
+                let num;
+                do {
+                    num = Math.floor(Math.random() * 49) + 1;
+                } while (used_nums.includes(num));
+                // Add the number to the set of used numbers
+                used_nums.push(num);
+            }
+
+            // sort the numbers
+            // Dies ist etwas tricky, der JavaScript sort sortiert normalerweise alphabetisch
+            // Mit der Arrow-Funktion sagen wir, dass zum Vergleich die Integers subtrahierten werden sollen
+            // (Dies ist beyond MI1 :-)
+            used_nums.sort((a, b) => (a - b));
+                    
+
+            const row = document.createElement("tr");
+            let correct = 0;
+            for (let j = 0; j < 6; j++) {
+                // Create a new cell and add it to the row
+                const cell = document.createElement("td");
+                cell.textContent = used_nums[j];
+                if(playingnums.includes(used_nums[j]))
+                {
+                    cell.style.background="green";
+                    correct++;
+                }
+                row.appendChild(cell);
+            }
+
+            table.appendChild(row);
+            // Add the table to the document
+            document.getElementById("table_container").appendChild(table);
+            console.log("CORRECT #:"+correct);
+            
+            let aus = document.getElementById("ausgabe");
+            if(correct<2)
+            {
+                aus.innerText = "Schade!";
+            } 
+            else if (correct===6)
+            {
+                aus.innerText = "UNGLAUBLICH! Sie sollten Lotto spielen!";
+            } else
+            {
+                aus.innerText = "Herzlichen Glückwunsch!";
+            }
+
+            
+        }
+
+
+    </script>
+
+</body>
+</html>
