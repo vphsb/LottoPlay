@@ -17,12 +17,27 @@
     </style>
 </head>
 <body>
+    <h1>
+        Lotto Spiel
+    </h1>
+    <p>
+        Bitte geben Sie Ihre Tipp Zahlen ein:
+    </p>
+    <br>
+    <table id="lotto-table">
+    </table>
+    <br>
+    <input style="display: none;" type="button" id="play" value="Play!" onclick="play()" >
+    <div id="table_container"></div>
+    <br>
+    <p id="ausgabe"></p>
+
+
     <table id="lotto-table"></table>
     <script>
         var anz_lotto_zahlen=0;
         
-        function zahl(e){
-            //console.log(e.target.id);
+        function clickzahl(e){
             if (e.target.style.backgroundColor != "red")
             {
                 if (anz_lotto_zahlen <6)
@@ -36,7 +51,18 @@
                 e.target.style.backgroundColor = "white";
                 anz_lotto_zahlen--;
             }
-            console.log(anz_lotto_zahlen);
+            if(anz_lotto_zahlen===6)
+            {
+                console.warn("READY TO PLAY");
+                let playbtn = document.getElementById("play");
+                playbtn.style.display = "block";
+            }
+            else
+            {
+                console.warn("NOT READY");
+                let playbtn = document.getElementById("play");
+                playbtn.style.display = "none";
+            }
         }
         
         // Get the table element
@@ -51,8 +77,9 @@
             // Set the text content of the table cell to the number
             cell.textContent = i;
             cell.id="cell"+i;
+            cell.classList.add('LZ');
             // Add a click event listener to the table cell
-            cell.addEventListener("click", zahl);
+            cell.addEventListener("click", clickzahl);
             tabrow.appendChild(cell);
             // 7 in each row -> if remainder % 7 ==0 we create a new row
             if((i % 7)===0)
@@ -61,7 +88,73 @@
                 tabrow = document.createElement("tr");
                 
             }
-        }     
+        } 
+        function play(){
+            console.log("PLAYING!");
+            playingnums=[];
+            const elements = document.querySelectorAll('.LZ');  
+            for (let i = 0; i < elements.length; i++) {
+                if(elements[i].style.backgroundColor == 'red')
+                {
+                    console.error(i);
+                    playingnums.push(i);
+                }
+            }
+            const table = document.createElement("table");
+            // Create a set to keep track of which numbers have already been used in each row
+            let used_nums = [];
+            // Generate 6 random numbers between 1 and 49
+            for (let j = 0; j < 6; j++) {
+                // Keep generating random numbers until we get one that hasn't already been used in this row
+                let num;
+                do {
+                    num = Math.floor(Math.random() * 49) + 1;
+                } while (used_nums.includes(num));
+                // Add the number to the set of used numbers
+                used_nums.push(num);
+            }
+
+            // sort the numbers
+            // Dies ist etwas tricky, der JavaScript sort sortiert normalerweise alphabetisch
+            // Mit der Arrow-Funktion sagen wir, dass zum Vergleich die Integers subtrahierten werden sollen
+            // (Dies ist beyond MI1 :-)
+            used_nums.sort((a, b) => (a - b));
+                    
+
+            const row = document.createElement("tr");
+            let correct = 0;
+            for (let j = 0; j < 6; j++) {
+                // Create a new cell and add it to the row
+                const cell = document.createElement("td");
+                cell.textContent = used_nums[j];
+                if(playingnums.includes(used_nums[j]))
+                {
+                    cell.style.background="green";
+                    correct++;
+                }
+                row.appendChild(cell);
+            }
+
+            table.appendChild(row);
+            // Add the table to the document
+            document.getElementById("table_container").appendChild(table);
+            console.log("CORRECT #:"+correct);
+            
+            let aus = document.getElementById("ausgabe");
+            if(correct<2)
+            {
+                aus.innerText = "Schade!";
+            } 
+            else if (correct===6)
+            {
+                aus.innerText = "UNGLAUBLICH! Sie sollten Lotto spielen!";
+            } else
+            {
+                aus.innerText = "Herzlichen Glückwunsch!";
+            }
+
+            
+        }    
     </script>
 </body>
 </html>
